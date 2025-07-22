@@ -1,17 +1,23 @@
-const express = require('express'); // express 모듈 불러오기    
-const index = express(); // express 인스턴스 생성
+// index.js
 
-index.get('/', (req, res) => { // 라우트 설정
+const express = require('express'); // express 모듈 불러오기
+const serverless = require('serverless-http'); // Express 앱을 서버리스 함수로 변환
+
+const app = express(); // express 인스턴스 생성 (변수명을 'app'으로 통일하는 것이 일반적입니다)
+
+// 환경 변수 로그 확인 (Vercel에서는 Logs에서 확인 가능)
+console.log('index.js: 파일 로드 시작.');
+console.log('index.js: NOTION_TOKEN (로드 여부):', process.env.NOTION_TOKEN ? 'Loaded' : 'Not Loaded');
+
+app.get('/', (req, res) => { // 기본 라우트 설정
+  console.log('index.js: Request received at /');
   res.send('Hello from Vercel!');
 });
-
-module.exports = index // listen은 쓰지 않고, index만 내보냄
 
 // ✅ Notion API 네트워크 연결 테스트용 ping 라우트
 app.get('/notion-ping', async (req, res) => {
   console.log('index.js: Request received at /notion-ping');
   try {
-    // Node.js 18+에서는 fetch가 전역으로 있지만, Vercel 환경에서 안정성을 위해
     // `node-fetch` 모듈을 명시적으로 불러와 사용하는 것이 좋습니다.
     // package.json에 `node-fetch`가 `dependencies`에 설치되어 있어야 합니다.
     const nodeFetch = require('node-fetch'); // <-- fetch 사용을 위해 명시적으로 불러오기
@@ -31,3 +37,5 @@ app.get('/notion-ping', async (req, res) => {
   }
 });
 
+// Vercel 서버리스 환경에 맞게 Express 앱 내보내기
+module.exports = serverless(app);
